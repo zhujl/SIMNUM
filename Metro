@@ -1,0 +1,173 @@
+//Le Metro
+//Version 1
+//Fonctions suivantes sont realises
+//1. lire les station et les ranger en ordre
+//2. lire les lignes et les relier avec les stations
+//Il y a encore des petits problems
+//1. En lignes.data a la fin, il y a des lignes qui ne sont pas dans la meme forme que les autres. Il resulte de lire et de ranger mal
+//2. En utilisant "!read_station.eof()", quand on lit les lignes, il toujours lit la derniere ligne 2 fois. Cela derange un peu (on va le resoudre)
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include "station.h"
+#include "ligne.h"
+#define N_stat 400
+#define N_line 100
+#define Time_MAX 10000
+
+using namespace std;
+line Line[N_line];
+station Stat[N_stat];
+
+// cette fonction est pour trouver une station et la lier dans une ligne
+station& find_station (string S,int count_stat)
+{
+    string tmp_name ="NULL";
+    //cout<<"S:"<<S<<endl;
+    for (int i=0;i<count_stat;i++)
+    {
+        tmp_name=Stat[i].Get_Name();
+        //cout<<tmp_name<<endl;
+        if (tmp_name==S) return Stat[i];
+    }
+    //cout<<endl;
+    cout<<"Cannot find this station! Cannot initialise the lines!"<<endl<<"The Unfound name is: "<<S;
+    return Stat[count_stat-1];
+}
+
+//u := Extract_Min(Q) 在頂點集合 Q 中搜索有最小的 d[u] 值的頂點 u。這個頂點被從集合 Q 中刪除並返回給用戶。
+
+int Find_Time_Min (vector<int>& Q,int* time)
+{
+    int min = Time_MAX;
+    int min_pos = -1;
+    for (unsigned i=0;i<Q.size();i++;)
+    {
+        if (time[Q[i]]<=min)
+        {
+            min = time[Q[i]];
+            min_pos = Q[i];
+        }
+    }
+    //Q.erase(Q[i]);
+    Q.find
+    return min_pos;
+}
+
+int* Dijkastra (matrice & metro, int count_stat, int num_stat)
+{
+    int previous [count_stat];  //Precedents d'une station
+    int *time;
+    time = new int[count_stat];
+    for (int i=0;i<count_stat;i++)
+    {
+        time[i] = Time_MAX;
+    }
+    time[num_stat] = 0;
+    vector<int> Q;  //
+    for (int i=0;i<count_stat;i++ )  Q.push_back(i);
+
+    while (!Q.empty())
+    {
+        i = Find_Time_Min(Q,time);
+        for (int j=0;j<count_stat;j++)
+        if (metro[j][i]>0 && (time[i]>time[j]+metro[j][i]))
+        {
+            time [i] = time[j]+metro[j][i];
+            previous[i] = j;
+        }
+    }
+    return
+
+}
+
+int main()
+{
+    ifstream read_station;
+    read_station.open("stations2.data");
+    int count_stat = 0; //Enregistrer le nombre de station
+    int count_line = 0; //Enregistrer le nombre de ligne
+    if(read_station.is_open()) //Commencer a lire les station
+    {
+        int x,y;
+        string name;
+        string aline;
+        //read the stations file
+        while (!read_station.eof())
+        {
+            read_station>>x>>y;  //lire les coordonnees
+            getline (read_station,aline); //lire son nom
+            name = aline.erase (0,1);
+            station S(x,y,name,count_stat); //initialiser une station S
+            Stat[count_stat] = S;
+            count_stat++;
+        }
+    }
+    else
+    {
+        cout<<"Stations.data file NOT Found!";
+        return 0;
+    }
+    read_station.close();
+    station S;
+    Stat[count_stat-1] = S;
+     //modifier la valeur
+
+    //for (int i=0;i<count_stat;i++) Stat[i].print(); // Vous pouvez utiliser cette phrase pour demontrer les stations
+
+    ifstream read_line;
+    read_line.open("lignes2.data"); // Commencer a lire les lignes
+    if(read_line.is_open())
+    {
+        string str;
+        char c;
+        string line_num; // Comme 1-a
+        string line_name; //Comme A-B
+        string station_name; //Nom d'une station en ligne
+        string aline;
+
+        while(!read_line.eof())
+        {
+            read_line>>c;
+            if (c=='#')  // S'il indique le nom de la ligne
+            {
+                getline (read_line,aline);
+                size_t first = aline.find(' ');
+                size_t middle = aline.find(':');
+                size_t last = aline.rfind('\n');
+                line_num = aline.substr(first, middle-first);
+                line_name = aline.substr(middle+1, last-middle);
+                Line[count_line].init(line_num, line_name);
+                count_line++;
+                //cout<<endl;
+                //cout<<line_num<<" "<<line_name<<endl;
+            }
+            else // S'il montre les stations
+            {
+                getline(read_line, aline);
+                size_t middle = aline.find(':');
+                size_t last = aline.rfind('\n');
+                station_name = aline.substr(middle+1, last-middle);
+                //cout<<station_name<<endl;
+                //cout<<count_line<<endl;
+                Line[count_line-1].add_station(find_station(station_name,count_stat)); //Ajouter une station dans une ligne
+            }
+        }
+    }
+    else
+    {
+        cout<<"ligne.data file NOT Found!";
+        return 0;
+    }
+
+
+      //Vous pouvez utiliser cette loop pour demontrer les lignes
+    /*for (int i=0; i<count_line; i++ )
+    {
+        Line[i].print();
+    }*/
+
+
+    return 0;
+}
